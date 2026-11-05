@@ -1,6 +1,6 @@
 # engineering-standards
 
-One change standard for every service: commit message format, CHANGELOG entry, and unit plus integration tests that run with each project's real commands. Packaged as an agent skill (Claude Code, Kiro, Gemini CLI, Codex) plus deterministic git hooks.
+One change standard for every service: commit message format, CHANGELOG entry, and unit plus integration tests that run with each project's real commands. Packaged as an agent skill (Claude Code, Kiro, Gemini CLI, Codex, OpenCode) plus deterministic git hooks.
 
 ## Install in a repository
 
@@ -13,10 +13,10 @@ curl -fsSL https://raw.githubusercontent.com/AngelDev-04/engineering-standards/m
 
 The installer:
 
-1. Copies the `change-standards` skill to `.ai/skills`, `.claude/skills`, `.kiro/skills` and `.agents/skills` (Codex and Gemini read `.agents/skills`).
+1. Copies the `change-standards` skill to `.ai/skills`, `.claude/skills`, `.kiro/skills`, `.agents/skills` and `.opencode/skills` (Codex and Gemini read `.agents/skills`; OpenCode reads `.opencode/skills`).
 2. Installs `.githooks/commit-msg` and `.githooks/pre-push` and sets `git config core.hooksPath .githooks`.
 3. Writes `.ai/standards.lock` with the installed version.
-4. Bootstraps the project standard with an agent CLI it detects (`kiro-cli`, `claude`, `gemini`, `codex`). It asks first because it uses that agent's credits. `--agent none` skips it; any agent can do it later when asked to "bootstrap the change standard".
+4. Bootstraps the project standard with an agent CLI it detects (`kiro-cli`, `claude`, `gemini`, `codex`, `opencode`). It asks first because it uses that agent's credits. `--agent none` skips it; any agent can do it later when asked to "bootstrap the change standard".
 
 Commit everything it creates. Each repository then carries its own versioned copy; upgrading is re-running the installer with a new `--ref` and reviewing the diff.
 

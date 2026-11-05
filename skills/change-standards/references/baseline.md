@@ -14,7 +14,7 @@ Tests: <tests added or changed and how the change was validated>
 ```
 
 - `type`: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `ci`, `revert`.
-- `TICKET`: the issue key in upper case, e.g. `ABC-123`. Required for `feat`, `fix`, `refactor`, `perf`, `revert`. Optional for `test`, `docs`, `chore`, `ci`: then use `<type>: <subject>`.
+- `TICKET`: the issue key in upper case, e.g. `ABC-123`. Required for `feat`, `fix`, `refactor`, `perf`, `revert`. Optional for `test`, `docs`, `chore`, `ci`: then use `<type>: <subject>`. A repository with no issue tracker writes the literal `NO-TICKET` scope (`feat(NO-TICKET): ...`); the body is still required.
 - `subject`: imperative mood ("add", "fix", not "added", "fixes"), lower case first word, no trailing period, header at most 72 characters.
 - Body: required for `feat`, `fix`, `refactor`, `perf`, `revert`, with the four labels above in that order. Wrap at 72 characters. Explain why; the diff already shows what changed line by line.
 - Breaking change: add `!` after the scope (`feat(ABC-123)!: ...`) and a `BREAKING CHANGE: <what callers must do>` line at the end.

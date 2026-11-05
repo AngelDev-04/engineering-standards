@@ -7,7 +7,7 @@
 # Options:
 #   --ref <tag|branch>   version to install (default: main; in an installed repo, the pinned one)
 #   --upgrade <tag>      reinstall an already installed repo at another version
-#   --agent <name>       bootstrap agent: auto (ask), kiro, claude, gemini, codex, none
+#   --agent <name>       bootstrap agent: auto (ask), kiro, claude, gemini, codex, opencode, none
 #   --source <dir>       install from a local checkout instead of downloading
 #   --yes                do not ask; use the first detected agent (or --agent)
 # Env: ES_REPO (default AngelDev-04/engineering-standards), ES_MODEL (bootstrap model override)
@@ -68,7 +68,7 @@ fi
 
 # --- 2. deterministic install ----------------------------------------------
 say "installing skill and hooks ($version)"
-for dest in .ai/skills .claude/skills .kiro/skills .agents/skills; do
+for dest in .ai/skills .claude/skills .kiro/skills .agents/skills .opencode/skills; do
   mkdir -p "$dest"
   rm -rf "$dest/change-standards"
   cp -R "$src/skills/change-standards" "$dest/change-standards"
@@ -88,7 +88,7 @@ repo: $REPO
 version: $version
 installed: $(date +%F)
 EOF
-say "installed: .ai/skills, .claude/skills, .kiro/skills, .agents/skills, .githooks, .ai/standards.lock"
+say "installed: .ai/skills, .claude/skills, .kiro/skills, .agents/skills, .opencode/skills, .githooks, .ai/standards.lock"
 
 # --- 3. bootstrap with an agent ---------------------------------------------
 if [[ -f .ai/change-standard.md ]]; then
@@ -103,6 +103,7 @@ command -v kiro-cli >/dev/null && detected+=(kiro)
 command -v claude   >/dev/null && detected+=(claude)
 command -v gemini   >/dev/null && detected+=(gemini)
 command -v codex    >/dev/null && detected+=(codex)
+command -v opencode >/dev/null && detected+=(opencode)
 
 if [[ "$AGENT" == "auto" ]]; then
   if (( ${#detected[@]} == 0 )); then
@@ -123,6 +124,7 @@ case "$AGENT" in
   claude) cmd=(claude -p "$PROMPT" --permission-mode acceptEdits --allowedTools "Bash Read Write Edit Glob Grep" ${model:+--model "$model"}) ;;
   gemini) cmd=(gemini --approval-mode yolo ${model:+--model "$model"} -p "$PROMPT") ;;
   codex)  cmd=(codex exec --full-auto ${model:+--model "$model"} "$PROMPT") ;;
+  opencode) cmd=(opencode run --auto ${model:+-m "$model"} "$PROMPT") ;;
   none)
     say "bootstrap pending. Open any agent in this repo and ask: \"bootstrap the change standard\""
     exit 0 ;;

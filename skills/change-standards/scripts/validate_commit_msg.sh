@@ -17,14 +17,14 @@ esac
 errors=()
 types='feat|fix|refactor|perf|test|docs|chore|ci|revert'
 needs_ticket='^(feat|fix|refactor|perf|revert)$'
-re="^($types)(\(([A-Z][A-Z0-9]+-[0-9]+)\))?(!)?: (.+)$"
+re="^($types)(\(([A-Z][A-Z0-9]+-[0-9]+|NO-TICKET)\))?(!)?: (.+)$"
 
 if [[ ! "$header" =~ $re ]]; then
   errors+=("header must be '<type>(<TICKET>): <subject>' with type in: ${types//|/, }")
 else
   type="${BASH_REMATCH[1]}"; ticket="${BASH_REMATCH[3]}"; subject="${BASH_REMATCH[5]}"
   if [[ "$type" =~ $needs_ticket && -z "$ticket" ]]; then
-    errors+=("type '$type' requires a ticket: $type(ABC-123): ...")
+    errors+=("type '$type' requires a ticket: $type(ABC-123): ... (no tracker: $type(NO-TICKET): ...)")
   fi
   (( ${#header} > 72 )) && errors+=("header is ${#header} characters, max 72")
   [[ "$subject" =~ \.$ ]] && errors+=("subject must not end with a period")
