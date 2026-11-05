@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# change-standards: check the commits being pushed (format, CHANGELOG, tests).
+# Skip once with:  ES_SKIP_HOOKS=1 git push    (or --no-verify)
+[[ "${ES_SKIP_HOOKS:-0}" == 1 ]] && exit 0
+root="$(git rev-parse --show-toplevel)"
+zero=0000000000000000000000000000000000000000
+status=0
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [[ "$local_sha" == "$zero" ]] && continue          # branch deletion
+  if [[ "$remote_sha" == "$zero" ]]; then            # new branch: compare with default branch
+    base="$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || echo HEAD~1)"
+  else
+    base="$remote_sha"
+  fi
+  git -c advice.detachedHead=false rev-parse -q --verify "$base^{commit}" >/dev/null || base="HEAD~1"
+  [[ "$local_sha" == "$(git rev-parse HEAD)" ]] || { echo "change-standards: pushing a ref that is not HEAD; skipped"; continue; }
+  "$root/.ai/skills/change-standards/scripts/check_change.sh" "$base" || status=1
+done
+exit $status

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# change-standards: reject commit messages that break the company format.
+root="$(git rev-parse --show-toplevel)"
+exec "$root/.ai/skills/change-standards/scripts/validate_commit_msg.sh" "$1"
