@@ -20,7 +20,9 @@ The installer:
 
 Commit everything it creates. Each repository then carries its own versioned copy; upgrading is re-running the installer with a new `--ref` and reviewing the diff.
 
-New clones must run `git config core.hooksPath .githooks` once (hooks paths are not cloned).
+Installation is per repository: run the command at the repository root; nothing is installed globally.
+
+On a fresh clone of a repository that already has it, run the same `curl ... | bash`: it keeps the pinned version in `.ai/standards.lock`, changes no files and only enables the hooks (git does not clone `core.hooksPath`). Agents using the skill also re-enable them if missing. To change version: `... | bash -s -- --upgrade v0.2.0`.
 
 ## How it works
 

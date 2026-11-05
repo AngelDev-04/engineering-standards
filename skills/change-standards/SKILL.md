@@ -50,4 +50,4 @@ The project standard is a living file. If during Apply a `verified` command no l
 
 ## Hooks
 
-The installer sets `core.hooksPath=.githooks`. `commit-msg` rejects messages that break the format; `pre-push` runs `check_change.sh`. If a hook rejects your commit, fix the cause. Never use `--no-verify` unless the user explicitly asks.
+The installer sets `core.hooksPath=.githooks`. That setting is local to each clone, so at the start of every Apply check `git config core.hooksPath`; if it is not `.githooks` and the folder exists, run `git config core.hooksPath .githooks` and mention it in the report. `commit-msg` rejects messages that break the format; `pre-push` runs `check_change.sh`. If a hook rejects your commit, fix the cause. Never use `--no-verify` unless the user explicitly asks.

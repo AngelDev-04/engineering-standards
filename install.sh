@@ -5,7 +5,8 @@
 #   curl -fsSL .../install.sh | bash -s -- --ref v0.1.0 --agent kiro
 #
 # Options:
-#   --ref <tag|branch>   version to install (default: main)
+#   --ref <tag|branch>   version to install (default: main; in an installed repo, the pinned one)
+#   --upgrade <tag>      reinstall an already installed repo at another version
 #   --agent <name>       bootstrap agent: auto (ask), kiro, claude, gemini, codex, none
 #   --source <dir>       install from a local checkout instead of downloading
 #   --yes                do not ask; use the first detected agent (or --agent)
@@ -13,14 +14,15 @@
 set -euo pipefail
 
 REPO="${ES_REPO:-AngelDev-04/engineering-standards}"
-REF="main"; AGENT="auto"; SOURCE=""; YES=0
+REF=""; AGENT="auto"; SOURCE=""; YES=0
 while (( $# )); do
   case "$1" in
     --ref) REF="$2"; shift 2 ;;
+    --upgrade) REF="${2:-main}"; shift 2 ;;
     --agent) AGENT="$2"; shift 2 ;;
     --source) SOURCE="$2"; shift 2 ;;
     --yes|-y) YES=1; shift ;;
-    -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
+    -h|--help) sed -n "2,14p" "$0"; exit 0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done
@@ -28,6 +30,28 @@ done
 say() { printf '\033[1m==>\033[0m %s\n' "$*"; }
 root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "run this inside a git repository" >&2; exit 1; }
 cd "$root"
+
+enable_hooks() {
+  local current
+  current="$(git config --get core.hooksPath || true)"
+  if [[ -n "$current" && "$current" != ".githooks" ]]; then
+    echo "  core.hooksPath is '$current'; not changed. Point it to .githooks or chain the hooks." >&2
+  else
+    git config core.hooksPath .githooks
+  fi
+}
+
+# Already installed and no explicit version: this is a fresh clone (or a
+# re-run). Keep the pinned version, only activate the hooks.
+locked="$(sed -n 's/^version: //p' .ai/standards.lock 2>/dev/null || true)"
+if [[ -z "$REF" && -z "$SOURCE" && -n "$locked" && -d .githooks ]]; then
+  enable_hooks
+  say "engineering-standards $locked already installed; hooks enabled (core.hooksPath=.githooks)"
+  [[ -f .ai/change-standard.md ]] || say "project standard missing: ask any agent to 'bootstrap the change standard'"
+  say "to upgrade: ... | bash -s -- --upgrade <tag>"
+  exit 0
+fi
+REF="${REF:-main}"
 
 # --- 1. fetch ---------------------------------------------------------------
 tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
@@ -58,12 +82,7 @@ for h in commit-msg pre-push; do
   fi
   cp "$src/hooks/$h" ".githooks/$h"; chmod +x ".githooks/$h"
 done
-current_hooks="$(git config --get core.hooksPath || true)"
-if [[ -n "$current_hooks" && "$current_hooks" != ".githooks" ]]; then
-  echo "  core.hooksPath is '$current_hooks'; not changed. Point it to .githooks or chain the hooks." >&2
-else
-  git config core.hooksPath .githooks
-fi
+enable_hooks
 cat > .ai/standards.lock <<EOF
 repo: $REPO
 version: $version
