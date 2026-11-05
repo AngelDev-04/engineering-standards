@@ -22,7 +22,7 @@ while (( $# )); do
     --agent) AGENT="$2"; shift 2 ;;
     --source) SOURCE="$2"; shift 2 ;;
     --yes|-y) YES=1; shift ;;
-    -h|--help) sed -n "2,14p" "$0"; exit 0 ;;
+    -h|--help) sed -n "2,13p" "$0"; exit 0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done
