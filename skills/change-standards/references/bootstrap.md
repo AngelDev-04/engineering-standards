@@ -28,7 +28,7 @@ Run each candidate. Use a timeout (e.g. 300 s) and do not install global package
 - Passes, or fails only because of genuine test failures → `verified`. Record pre-existing failing tests as a gap; do not fix unrelated tests.
 - Fails because the command is wrong (wrong path, missing marker, wrong runner, missing env manager) → fix the candidate and retry.
 - Fails because a prerequisite is missing (database, credentials, a product/tenant argument, network) → stop retrying and mark `unverified: <prerequisite>`. Never invent credentials or edit `.env`.
-- No tests exist for a slot → mark `missing` and add a gap.
+- No tests exist for a slot → mark `missing`, but still write the command the slot will use (e.g. `pytest tests/unit`, following the runner config) with status `missing`, so the first change that adds tests can run and verify it. Update the status to `verified` in that change and add a line to `Standard history`.
 
 ## 4. Write the files
 
@@ -47,5 +47,5 @@ Project commands and test locations: `.ai/change-standard.md`. Company rules: th
 ## 5. Limits
 
 - Do not modify application code, tests, the pipeline or dependencies during bootstrap. Gaps are recorded, not fixed.
-- Do not commit. Leave the changes in the working tree and tell the user to review them with `git diff`.
+- Do not commit unless the user asked you to. If you do, commit the bootstrap alone as `chore: bootstrap change standard`, before any task change.
 - Finish with a short report: commands and their status, gaps, files created or changed.

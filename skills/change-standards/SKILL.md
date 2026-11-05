@@ -31,8 +31,8 @@ There are two kinds of rules:
 3. **Write the tests** where the project standard says each kind goes, following the existing style of neighbouring tests (fixtures, naming, mocks). Unit tests mock every external dependency. Integration tests exercise the real boundary the project standard defines.
 4. **Run** the `verified` commands from the project standard: unit tests, then lint, then integration if its prerequisites are available. If an integration command is `unverified` (needs DB, credentials), say so in the report instead of skipping silently.
 5. **Update `CHANGELOG.md`** under `## [Unreleased]`, in the right section, one line per user-visible change, with the ticket. Write for the person operating the service, not a copy of the diff. Format in `references/baseline.md`.
-6. **Write the commit message** with the exact format in `references/baseline.md`. One logical change per commit. Do not commit unless the user asked you to; if not, propose the message.
-7. **Check**: run `.ai/skills/change-standards/scripts/check_change.sh`. Fix what it reports.
+6. **Write the commit message** with the exact format in `references/baseline.md`. One logical change per commit; a ticket may span several commits. Do not commit unless the user asked you to; if not, propose the message.
+7. **Check**: run `.ai/skills/change-standards/scripts/check_change.sh <commit-before-your-change>` (it runs the message, CHANGELOG and test-file checks, the unit command and the lint command). Fix what it reports. It does not run integration tests; run those yourself in step 4.
 8. **Report** to the user:
    ```
    Change standard

@@ -8,7 +8,7 @@
 
 ## Commands
 
-The `check_change.sh` hook reads the fenced block below. Keep the `key: value` format; one line per key. Leave the value empty when the status is not `verified`.
+The `check_change.sh` hook reads the fenced block below. Keep the `key: value` format; one line per key. Leave the value empty when the status is `unverified`. For `missing` (no tests yet) write the command the slot will use; `check_change.sh` will run it, so the first `feat`/`fix` must add those tests.
 
 ```standard
 unit: <command>

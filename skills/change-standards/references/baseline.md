@@ -18,7 +18,7 @@ Tests: <tests added or changed and how the change was validated>
 - `subject`: imperative mood ("add", "fix", not "added", "fixes"), lower case first word, no trailing period, header at most 72 characters.
 - Body: required for `feat`, `fix`, `refactor`, `perf`, `revert`, with the four labels above in that order. Wrap at 72 characters. Explain why; the diff already shows what changed line by line.
 - Breaking change: add `!` after the scope (`feat(ABC-123)!: ...`) and a `BREAKING CHANGE: <what callers must do>` line at the end.
-- One logical change per commit. Unrelated cleanups go in their own commit.
+- One logical change per commit; a ticket may span several commits. Unrelated cleanups go in their own commit.
 - Trailers such as `Co-Authored-By:` go after the body, separated by a blank line.
 
 Good:
@@ -68,5 +68,6 @@ All notable changes to this service are documented here.
 - Integration tests: exercise a real boundary (database, queue, HTTP client against a fake server or container, the service's entry point). They may need prerequisites; the project standard lists them.
 - Every `fix` adds a test that fails without the fix.
 - Every `feat` adds unit tests, and an integration test when it touches I/O.
-- Tests live in the locations the project standard defines and follow the existing conventions of the repository.
+- A missing harness is not a reason to skip an integration test. Build the smallest real boundary that fits: a local fake HTTP server, SQLite or a temp directory, a container already used by the project. Only prerequisites you cannot create locally (shared databases, credentials) justify `not run`, and the report must say which.
+- Tests live in the locations the project standard defines and follow the existing conventions of the repository. For Python, if unit and integration tests can share a file name (`tests/unit/test_client.py` and `tests/integration/test_client.py`), the test folders need `__init__.py` or pytest aborts on the duplicate module name.
 - The pipeline must run unit and integration tests. If it does not yet, the project standard records it as a gap; do not change the pipeline unless asked.

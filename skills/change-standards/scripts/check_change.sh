@@ -22,7 +22,15 @@ base="${1:-}"
 if [[ -z "$base" ]]; then
   base="$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)" ||
   base="$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null)" ||
-  base="HEAD~1"
+  base=""
+  if [[ -z "$base" ]]; then
+    for b in main master; do
+      if git rev-parse -q --verify "$b" >/dev/null && [[ "$(git rev-parse "$b")" != "$(git rev-parse HEAD)" ]]; then
+        base="$(git merge-base "$b" HEAD)"; break
+      fi
+    done
+  fi
+  [[ -z "$base" ]] && { echo "change-standards: cannot infer the base; pass it: check_change.sh <commit-before-your-change>" >&2; exit 2; }
 fi
 range="$base..HEAD"
 commits="$(git rev-list --no-merges "$range" 2>/dev/null)"
@@ -95,8 +103,18 @@ if (( src_changed || tests_changed )) && [[ "${ES_SKIP_TESTS:-0}" != 1 ]]; then
   if [[ -n "$unit_cmd" ]]; then
     echo "  run   $unit_cmd"
     if bash -c "$unit_cmd" > "$tmp" 2>&1; then ok "unit tests"; else err "unit tests failed:"; tail -n 20 "$tmp" | sed 's/^/        /'; fi
+  elif (( src_changed && needs_changes )); then
+    err "feat/fix changes source code but $standard has no verified unit command; add the tests and record the command"
   else
     warn "no verified unit command in $standard; tests not run"
+  fi
+  if (( src_changed && needs_changes )) && [[ -z "$(get integration)" ]]; then
+    warn "no integration command in $standard; if this change touches I/O it needs an integration test (see baseline.md)"
+  fi
+  lint_cmd="$(get lint)"; [[ "$lint_cmd" == "<"* ]] && lint_cmd=""
+  if [[ -n "$lint_cmd" ]]; then
+    echo "  run   $lint_cmd"
+    if bash -c "$lint_cmd" > "$tmp" 2>&1; then ok "lint"; else err "lint failed:"; tail -n 20 "$tmp" | sed 's/^/        /'; fi
   fi
 fi
 
